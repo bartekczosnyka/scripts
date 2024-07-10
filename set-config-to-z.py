@@ -4,6 +4,10 @@ import shutil
 import xml.etree.ElementTree as ET
 from playwright.sync_api import sync_playwright
 
+# to run the script
+# pip install elementpath
+# pip install pytest-playwright
+# playwright install
 
 class ServiceConfig:
     def __init__(self, name, clickable, octa_address, local_address, elements_to_restore):
