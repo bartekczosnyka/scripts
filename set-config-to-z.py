@@ -37,34 +37,34 @@ V3_queue_service_config = ServiceConfig(
     create_repo_path("V3QueueService/App.config"), 
     ['V3QueueName', 'QueueName', 'QueueProviderType', 
      'SQSEndpoint', 'SQSEndpointHttps', 'SQSQueueBasePath', 
-     'SQSQueueSuffix', 'RedisServer', 'RedisReplicaServers'])
+     'SQSQueueSuffix', 'RedisServer'])
 
 job_service_config = ServiceConfig(
     "JobService",
     "JobService.exe.config$", 
     "https://octoprod.sslocal.com/app#/Spaces-1/projects/shipstation-services/deployments",
      create_repo_path("JobService/app.config"), 
-    ['V3QueueName', 'QueueName', 'QueueProviderType', 
+    ['V3QueueName', 'QueueProviderType', 
      'SQSEndpoint', 'SQSEndpointHttps', 'SQSQueueBasePath', 
-     'SQSQueueSuffix', 'RedisServer', 'RedisReplicaServers'])
+     'SQSQueueSuffix', 'RedisServer'])
 
 order_service_config = ServiceConfig(
     "OrderService",
     "OrderService.exe.config$", 
     "https://octoprod.sslocal.com/app#/Spaces-1/projects/shipstation-services/deployments",
     create_repo_path("OrderService/app.config"), 
-    ['V3QueueName', 'QueueName', 'QueueProviderType', 
+    ['V3QueueName', 'QueueProviderType', 
      'SQSEndpoint', 'SQSEndpointHttps', 'SQSQueueBasePath', 
-     'SQSQueueSuffix', 'RedisServer', 'RedisReplicaServers'])
+     'SQSQueueSuffix', 'RedisServer',])
 
 label_service_config = ServiceConfig(
     "LabelService",
     "LabelService.exe.config$", 
     "https://octoprod.sslocal.com/app#/Spaces-1/projects/shipstation-services/deployments",
     create_repo_path("LabelService/App.config"),
-    ['V3QueueName', 'QueueName', 'QueueProviderType', 
+    ['V3QueueName', 'QueueProviderType', 
      'SQSEndpoint', 'SQSEndpointHttps', 'SQSQueueBasePath', 
-     'SQSQueueSuffix', 'RedisServer', 'RedisReplicaServers', 'LabelOutputPath', 'LogPath'])
+     'SQSQueueSuffix', 'RedisServer', 'LabelOutputPath', 'LogPath'])
 
 
 configs = [web_V3_api_config, V3_queue_service_config, job_service_config, order_service_config, label_service_config]
@@ -81,7 +81,8 @@ def get_values_based_on_keys(root, keys):
     return dict
 
 def get_page():
-    browser = p.chromium.launch_persistent_context(
+    context = sync_playwright().start()
+    browser = context.chromium.launch_persistent_context(
         user_data_dir = browser_dir,
         # change to true if you want to see the browser working
         headless = True,
@@ -96,7 +97,7 @@ def print_message(message):
     print(message)
     print('----------------------------------')
 
-with sync_playwright() as p:
+def set_configs():
     page = get_page()
 
     for config in configs:
@@ -141,6 +142,14 @@ with sync_playwright() as p:
         except Exception as e:
             print_message(f"Could not update {config.name} config because of error {e}")
             print('\n')
-    page.pause()
 
 
+if __name__ == "__main__":
+    print("In order to run this script we need to kill all chrome processes.")
+    print("Do you want to continue? (y/n)")
+    answer = input()
+    if answer.lower() == 'y':
+        os.system("taskkill /F /IM chrome.exe")
+        set_configs()
+    print("Exiting...")
+    exit()
